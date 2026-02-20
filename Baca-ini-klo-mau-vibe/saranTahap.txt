@@ -13,3 +13,6 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 -klo ga ngerti baca folder "Baca-ini-klo-mau-vibe"
 
 klo mau nanya wa
+
+
+btw ini lu harus regis dlu baru bisa masuk ke halaman homePage, udah gw setting soalnya
