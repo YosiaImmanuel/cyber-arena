@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useReveal } from "../hooks";
+import { useReveal } from "@/hooks/hooks";
 
 const SPONSORS_TIER1 = [
   { name: "NVIDIA", category: "GPU & Teknologi", color: "#76b900", abbr: "NV" },

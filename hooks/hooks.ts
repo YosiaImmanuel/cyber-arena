@@ -1,9 +1,7 @@
 import { useRef } from "react";
 import { useInView } from "framer-motion";
 
-/* ============================================================
-   ANIMATION HELPERS
-   ============================================================ */
+
 export const fadeUp = {
     hidden: { opacity: 0, y: 24 },
     visible: (delay = 0) => ({

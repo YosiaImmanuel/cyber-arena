@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Gamepad2, X, Menu, ArrowRight } from "lucide-react";
-import { NAV_LINKS } from "../data";
+import { NAV_LINKS } from "../app/landing-page/data";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {

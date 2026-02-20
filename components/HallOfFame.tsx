@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Crown, Trophy, Medal, Star } from "lucide-react";
-import { useReveal } from "../hooks";
-import { PLAYERS, RANK_COLORS } from "../data";
+import { useReveal } from "@/hooks/hooks"; 
+import { PLAYERS, RANK_COLORS } from "../app/landing-page/data";
 
 export default function HallOfFame() {
     const { ref, inView } = useReveal(0.1);

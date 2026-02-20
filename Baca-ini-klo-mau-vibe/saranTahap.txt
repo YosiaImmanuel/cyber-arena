@@ -1,0 +1,15 @@
+saran gw klo mau ngerjain ini
+tahapanya
+
+-setup ENV dlu pastiin ENV lu isinya begini yos
+
+NEXT_PUBLIC_SUPABASE_URL=https://podacsecxrkwbporuppf.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZGFjc2VjeHJrd2Jwb3J1cHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NjEwNTEsImV4cCI6MjA4NzEzNzA1MX0.0EaCk6CYNqeP3Q_pniO57jx-V6M4KFnfszo7awLI7GQ
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZGFjc2VjeHJrd2Jwb3J1cHBmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTU2MTA1MSwiZXhwIjoyMDg3MTM3MDUxfQ.dtJNZYl68iiq3-NL0U6QJt1ZdAhbbbyw1-_ZclEfKV4
+
+-buat halaman front end statis nya dlu kira kira mau kayak gimana layoutnya dan segalamacem 
+    dari awal sampe akhir
+-kalo udah jadi, baru lu consume API nya kayak yang gw contohin di folder action/profile
+-klo ga ngerti baca folder "Baca-ini-klo-mau-vibe"
+
+klo mau nanya wa

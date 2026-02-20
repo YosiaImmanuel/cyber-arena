@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Gamepad2, Twitter, Instagram, Twitch } from "lucide-react";
-import { useReveal } from "../hooks";
-import { FOOTER_LINKS } from "../data";
+import { useReveal } from "@/hooks/hooks";
+import { FOOTER_LINKS } from "@/app/landing-page/data";
 
 export default function Footer() {
     const { ref, inView } = useReveal(0.1);

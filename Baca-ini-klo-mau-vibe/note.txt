@@ -1,0 +1,336 @@
+// note: kalo ga ngerti udah, vibe coding aja cuma prompt lu yg bner ya jan asal asalan nanti malah ngerusak
+// tiap mau ngevibe struktur nya begini
+// -kasih type nya dlu di folder lib/type
+// -trus kasih logic apa yang mau di taro di hal tsb
+ 
+
+ taro aja schema schema database ini klo mau full vibe
+ Scroll kebawah buat baca next step 
+ 
+ 
+ create extension if not exists "uuid-ossp";
+
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  username text unique not null,
+  full_name text,
+  avatar_url text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, username, full_name, avatar_url)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)),
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'avatar_url'
+  );
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+  create table public.teams (
+  id uuid primary key default gen_random_uuid(),
+  name text unique not null,
+  logo_url text,
+  description text,
+  leader_id uuid not null references public.profiles(id) on delete restrict,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table public.team_members (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  role text not null default 'member' check (role in ('leader', 'member')),
+  joined_at timestamptz default now(),
+  unique(user_id) -- 1 user hanya boleh di 1 team
+);
+
+create table public.team_invitations (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams(id) on delete cascade,
+  invited_user_id uuid not null references public.profiles(id) on delete cascade,
+  invited_by uuid not null references public.profiles(id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined')),
+  created_at timestamptz default now(),
+  unique(team_id, invited_user_id)
+);
+
+create or replace function public.handle_team_created()
+returns trigger as $$
+begin
+  insert into public.team_members (team_id, user_id, role)
+  values (new.id, new.leader_id, 'leader');
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_team_created
+  after insert on public.teams
+  for each row execute procedure public.handle_team_created();
+
+  -- Enum kategori game
+create type game_category as enum (
+  'Mobile Legends', 'Free Fire', 'PUBG Mobile',
+  'CODM', 'HOK', 'CS GO', 'Valorant', 'DOTA 2', 'League of Legends'
+);
+
+create type tournament_status as enum (
+  'pending',    -- menunggu approve admin
+  'approved',   -- aktif di platform
+  'rejected',   -- ditolak admin
+  'ongoing',    -- sedang berlangsung
+  'completed'   -- selesai
+);
+
+create table public.tournaments (
+  id uuid primary key default gen_random_uuid(),
+  organizer_id uuid not null references public.profiles(id) on delete restrict,
+  name text not null,
+  description text,
+  game_category game_category not null,
+  banner_url text,
+  google_form_url text not null,
+  max_slots integer not null check (max_slots > 0),
+  current_slots integer not null default 0,
+  prize_pool text,
+  registration_start timestamptz,
+  registration_end timestamptz,
+  tournament_start timestamptz,
+  tournament_end timestamptz,
+  status tournament_status not null default 'pending',
+  payment_confirmed boolean default false, -- dummy payment
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create type registration_status as enum (
+  'pending',    -- menunggu approve organizer
+  'approved',   -- diterima
+  'rejected'    -- ditolak
+);
+
+create table public.tournament_registrations (
+  id uuid primary key default gen_random_uuid(),
+  tournament_id uuid not null references public.tournaments(id) on delete cascade,
+  team_id uuid not null references public.teams(id) on delete cascade,
+  registered_by uuid not null references public.profiles(id) on delete restrict, -- harus leader
+  form_screenshot_url text not null,
+  status registration_status not null default 'pending',
+  notes text, -- catatan dari organizer saat approve/reject
+  registered_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(tournament_id, team_id)
+);
+
+create or replace function update_tournament_slots()
+returns trigger as $$
+declare
+  slot_count integer;
+  max_slot integer;
+begin
+  -- Saat status berubah menjadi approved
+  if (TG_OP = 'UPDATE') and NEW.status = 'approved' and OLD.status != 'approved' then
+    select current_slots, max_slots
+    into slot_count, max_slot
+    from public.tournaments
+    where id = NEW.tournament_id;
+
+    if slot_count >= max_slot then
+      raise exception 'Tournament slot is full';
+    end if;
+
+    update public.tournaments
+    set current_slots = current_slots + 1
+    where id = NEW.tournament_id;
+
+  -- Saat status di-unreject / dibatalkan dari approved
+  elsif (TG_OP = 'UPDATE') and OLD.status = 'approved' and NEW.status != 'approved' then
+    update public.tournaments
+    set current_slots = greatest(current_slots - 1, 0)
+    where id = NEW.tournament_id;
+  end if;
+
+  return NEW;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_registration_status_changed
+  after update on public.tournament_registrations
+  for each row execute procedure update_tournament_slots();
+ 
+ 
+ //////NEXT STEP//////////////
+ 
+ 
+  setiap di kasih kode jangan lupa
+ nanya kodenya di taro di file mana, klo perlu lu ss vsCode lu biar AI yang ngatur sebaiknya di taro mana
+ tapi kalo mau mindahin yang udah ahsan buat sebelumnya wa dlu yos biar gw paham dan tau
+
+////ini aturan yang AI wajib tau biar ga ngerecokin kode nya
+
+sebut aja ini "RLS supabase" klo yang atas tadi schema supabase
+-- 1. Aktifkan RLS dulu di semua tabel
+alter table public.profiles enable row level security;
+alter table public.teams enable row level security;
+alter table public.team_members enable row level security;
+alter table public.team_invitations enable row level security;
+alter table public.tournaments enable row level security;
+alter table public.tournament_registrations enable row level security;
+
+-- 2. Baru paste semua policy dari Step 6
+-- Semua user bisa lihat profile
+create policy "profiles: public read"
+  on public.profiles for select using (true);
+
+-- User hanya bisa update profile sendiri
+create policy "profiles: owner update"
+  on public.profiles for update
+  using (auth.uid() = id);
+
+  -- Semua bisa lihat team
+create policy "teams: public read"
+  on public.teams for select using (true);
+
+-- User yang sudah punya team tidak bisa buat team lagi
+-- (validasi ini di handle di aplikasi / function)
+create policy "teams: authenticated create"
+  on public.teams for insert
+  with check (auth.uid() = leader_id);
+
+-- Hanya leader yang bisa update info tim
+create policy "teams: leader update"
+  on public.teams for update
+  using (auth.uid() = leader_id);
+
+-- Hanya leader yang bisa hapus tim
+create policy "teams: leader delete"
+  on public.teams for delete
+  using (auth.uid() = leader_id);
+
+  create policy "team_members: public read"
+  on public.team_members for select using (true);
+
+-- Hanya bisa insert via function (handle_team_created trigger + accept invitation)
+-- Policy insert di-handle lewat security definer functions
+
+-- Member bisa hapus diri sendiri (leave team)
+create policy "team_members: self delete"
+  on public.team_members for delete
+  using (auth.uid() = user_id);
+
+  -- User hanya bisa lihat undangan yang ditujukan ke dia atau undangan yang dia kirim
+create policy "invitations: relevant read"
+  on public.team_invitations for select
+  using (
+    auth.uid() = invited_user_id or
+    auth.uid() = invited_by
+  );
+
+-- Hanya leader yang bisa kirim undangan
+create policy "invitations: leader insert"
+  on public.team_invitations for insert
+  with check (
+    auth.uid() = invited_by and
+    exists (
+      select 1 from public.teams
+      where id = team_id and leader_id = auth.uid()
+    )
+  );
+
+-- Hanya penerima undangan yang bisa update status (accept/decline)
+create policy "invitations: recipient update"
+  on public.team_invitations for update
+  using (auth.uid() = invited_user_id);
+
+  -- Semua bisa lihat tournament yang sudah approved
+create policy "tournaments: public read approved"
+  on public.tournaments for select
+  using (status = 'approved' or organizer_id = auth.uid());
+
+-- User authenticated bisa buat tournament
+create policy "tournaments: authenticated create"
+  on public.tournaments for insert
+  with check (auth.uid() = organizer_id);
+
+-- Hanya organizer yang bisa update tournamentnya sendiri
+create policy "tournaments: organizer update"
+  on public.tournaments for update
+  using (auth.uid() = organizer_id);
+
+  create policy "registrations: relevant read"
+  on public.tournament_registrations for select
+  using (
+    auth.uid() = registered_by or
+    exists (
+      select 1 from public.tournaments
+      where id = tournament_id and organizer_id = auth.uid()
+    )
+  );
+
+-- Hanya leader tim yang bisa daftar
+create policy "registrations: leader insert"
+  on public.tournament_registrations for insert
+  with check (
+    auth.uid() = registered_by and
+    exists (
+      select 1 from public.teams
+      where id = team_id and leader_id = auth.uid()
+    )
+  );
+
+-- Hanya organizer tournament yang bisa approve/reject
+create policy "registrations: organizer update"
+  on public.tournament_registrations for update
+  using (
+    exists (
+      select 1 from public.tournaments
+      where id = tournament_id and organizer_id = auth.uid()
+    )
+  );
+
+  create or replace function public.get_user_team(user_id uuid)
+returns uuid as $$
+  select team_id from public.team_members
+  where team_members.user_id = $1
+  limit 1;
+$$ language sql security definer;
+
+create or replace function public.accept_team_invitation(invitation_id uuid)
+returns void as $$
+declare
+  inv record;
+begin
+  -- Ambil data invitation
+  select * into inv from public.team_invitations
+  where id = invitation_id and invited_user_id = auth.uid() and status = 'pending';
+
+  if not found then
+    raise exception 'Invitation not found or already processed';
+  end if;
+
+  -- Cek user belum punya tim
+  if exists (select 1 from public.team_members where user_id = auth.uid()) then
+    raise exception 'You already belong to a team';
+  end if;
+
+  -- Masukkan ke tim
+  insert into public.team_members (team_id, user_id, role)
+  values (inv.team_id, auth.uid(), 'member');
+
+  -- Update status invitation
+  update public.team_invitations
+  set status = 'accepted'
+  where id = invitation_id;
+end;
+$$ language plpgsql security definer;

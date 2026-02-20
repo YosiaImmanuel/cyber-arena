@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { signIn } from "@/actions/auth"; 
 import { motion } from "framer-motion";
-import { Gamepad2, User, Lock, Eye, EyeOff, LogIn } from "lucide-react";
+import { Gamepad2, User, Lock, Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -11,6 +12,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null); // ← tambah state error
     const [emailFocused, setEmailFocused] = useState(false);
     const [passFocused, setPassFocused] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -21,9 +23,24 @@ export default function LoginPage() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        setError(null);
+
+        if (!email.trim()) return setError("Email tidak boleh kosong");
+        if (!password) return setError("Password tidak boleh kosong");
+
         setLoading(true);
-        setTimeout(() => setLoading(false), 1500);
+
+        const formData = new FormData();
+        formData.append("email", email.trim());
+        formData.append("password", password);
+
+        const result = await signIn(formData);
+
+        if (result?.error) {
+            setError(result.error);
+            setLoading(false);
+        }
     };
 
     return (
@@ -102,7 +119,7 @@ export default function LoginPage() {
                             color: "#a78bfa", border: "1px solid #8b5cf6",
                             fontWeight: 600, fontSize: "0.875rem",
                             padding: "0.45rem 1.1rem", borderRadius: "8px",
-                            transition: "background 0.2s", display: "inline-block",
+                            transition: "background 0.2s", display: "inline-block", cursor: "pointer",
                         }}
                     >
                         Sign Up
@@ -136,13 +153,31 @@ export default function LoginPage() {
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1, duration: 0.4 }}
-                        style={{ marginBottom: "2rem" }}
+                        style={{ marginBottom: "1.75rem" }}
                     >
                         <h1 style={{ fontSize: "1.9rem", fontWeight: 800, marginBottom: "0.5rem" }}>Login Page</h1>
                         <p style={{ color: "#9ca3af", fontSize: "0.9rem", lineHeight: 1.6 }}>
                             Welcome back, player! Ready for the next tournament?
                         </p>
                     </motion.div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            style={{
+                                display: "flex", alignItems: "center", gap: "0.5rem",
+                                background: "rgba(239,68,68,0.1)",
+                                border: "1px solid rgba(239,68,68,0.3)",
+                                borderRadius: "8px", padding: "0.75rem 1rem",
+                                marginBottom: "1rem",
+                            }}
+                        >
+                            <AlertCircle size={16} color="#f87171" style={{ flexShrink: 0 }} />
+                            <span style={{ color: "#f87171", fontSize: "0.875rem" }}>{error}</span>
+                        </motion.div>
+                    )}
 
                     {/* Email Field */}
                     <motion.div
@@ -152,7 +187,7 @@ export default function LoginPage() {
                         style={{ marginBottom: "1.1rem" }}
                     >
                         <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 500, marginBottom: "0.5rem" }}>
-                            Email or Username
+                            Email
                         </label>
                         <div style={{
                             display: "flex", alignItems: "center", gap: "0.65rem",
@@ -164,9 +199,10 @@ export default function LoginPage() {
                         }}>
                             <User size={17} color={emailFocused ? "#a78bfa" : "#6b7280"} style={{ flexShrink: 0, transition: "color 0.2s" }} />
                             <input
-                                type="text" placeholder="Enter your email or username"
+                                type="email" placeholder="Enter your email"
                                 value={email} onChange={(e) => setEmail(e.target.value)}
                                 onFocus={() => setEmailFocused(true)} onBlur={() => setEmailFocused(false)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                             />
                         </div>
                     </motion.div>
@@ -198,6 +234,7 @@ export default function LoginPage() {
                                 type={showPass ? "text" : "password"} placeholder="Enter your password"
                                 value={password} onChange={(e) => setPassword(e.target.value)}
                                 onFocus={() => setPassFocused(true)} onBlur={() => setPassFocused(false)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                             />
                             <motion.button
                                 whileHover={{ opacity: 0.7 }}
@@ -216,9 +253,10 @@ export default function LoginPage() {
                         transition={{ delay: 0.25, duration: 0.4 }}
                     >
                         <motion.button
-                            whileHover={{ opacity: 0.9, boxShadow: "0 0 32px rgba(147,51,234,0.45)" }}
-                            whileTap={{ scale: 0.98 }}
+                            whileHover={{ opacity: !loading ? 0.9 : 1, boxShadow: !loading ? "0 0 32px rgba(147,51,234,0.45)" : "none" }}
+                            whileTap={{ scale: !loading ? 0.98 : 1 }}
                             onClick={handleSubmit}
+                            disabled={loading}
                             style={{
                                 width: "100%", height: "52px",
                                 background: "linear-gradient(135deg, #9333ea, #7c3aed)",
@@ -226,6 +264,8 @@ export default function LoginPage() {
                                 borderRadius: "10px", marginBottom: "1.5rem",
                                 display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
                                 transition: "opacity 0.2s, box-shadow 0.2s",
+                                opacity: loading ? 0.7 : 1,
+                                cursor: loading ? "not-allowed" : "pointer",
                             }}
                         >
                             {loading ? (
@@ -305,7 +345,7 @@ export default function LoginPage() {
                         style={{ textAlign: "center", color: "#9ca3af", fontSize: "0.875rem" }}
                     >
                         Don&apos;t have an account?{" "}
-                        <motion.a href="/register" whileHover={{ opacity: 0.8 }}
+                        <motion.a href="/auth/sign-up" whileHover={{ opacity: 0.8 }}
                             style={{ color: "#a78bfa", fontWeight: 700 }}>
                             Join the tournament
                         </motion.a>

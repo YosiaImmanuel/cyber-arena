@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Calendar } from "lucide-react";
-import { Tournament } from "../data";
+import { Tournament } from "../app/landing-page/data";
 
 interface TournamentCardProps {
     t: Tournament;

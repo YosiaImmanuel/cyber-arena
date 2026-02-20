@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { useReveal } from "../hooks";
-import { TOURNAMENTS } from "../data";
+import { useReveal } from "@/hooks/hooks"; 
+import { TOURNAMENTS } from "@/app/landing-page/data"; 
 import TournamentCard from "./TournamentCard";
 
 export default function FeaturedTournaments() {

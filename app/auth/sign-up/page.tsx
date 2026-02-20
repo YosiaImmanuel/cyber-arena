@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { signUp } from "@/actions/auth";
 import { motion } from "framer-motion";
-import { Gamepad2, User, Mail, Lock, ShieldCheck, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Gamepad2, User, Mail, Lock, ShieldCheck, Eye, EyeOff, ArrowRight, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
@@ -15,6 +16,7 @@ export default function RegisterPage() {
     const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [error, setError] = useState<string | null>(null); 
 
     const [userFocused, setUserFocused] = useState(false);
     const [emailFocused, setEmailFocused] = useState(false);
@@ -27,10 +29,28 @@ export default function RegisterPage() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!agreed) return;
+        setError(null);
+
+        if (!username.trim()) return setError("Username tidak boleh kosong");
+        if (!email.trim()) return setError("Email tidak boleh kosong");
+        if (password.length < 6) return setError("Password minimal 6 karakter");
+        if (password !== confirm) return setError("Password dan konfirmasi password tidak cocok");
+
         setLoading(true);
-        setTimeout(() => setLoading(false), 1500);
+
+        const formData = new FormData();
+        formData.append("username", username.trim());
+        formData.append("email", email.trim());
+        formData.append("password", password);
+
+        const result = await signUp(formData);
+
+        if (result?.error) {
+            setError(result.error);
+            setLoading(false);
+        }
     };
 
     const inputBox = (focused: boolean) => ({
@@ -116,7 +136,7 @@ export default function RegisterPage() {
                         whileTap={{ scale: 0.97 }}
                         style={{
                             color: "#a78bfa", fontWeight: 600, fontSize: "0.875rem",
-                            transition: "opacity 0.2s", display: "inline-block",
+                            transition: "opacity 0.2s", display: "inline-block", cursor: "pointer",
                         }}
                     >
                         Sign In
@@ -157,6 +177,24 @@ export default function RegisterPage() {
                             Create your account to start competing.
                         </p>
                     </motion.div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            style={{
+                                display: "flex", alignItems: "center", gap: "0.5rem",
+                                background: "rgba(239,68,68,0.1)",
+                                border: "1px solid rgba(239,68,68,0.3)",
+                                borderRadius: "8px", padding: "0.75rem 1rem",
+                                marginBottom: "1rem",
+                            }}
+                        >
+                            <AlertCircle size={16} color="#f87171" style={{ flexShrink: 0 }} />
+                            <span style={{ color: "#f87171", fontSize: "0.875rem" }}>{error}</span>
+                        </motion.div>
+                    )}
 
                     {/* Username */}
                     <motion.div
@@ -287,11 +325,12 @@ export default function RegisterPage() {
                     >
                         <motion.button
                             whileHover={{
-                                opacity: agreed ? 0.9 : 1,
-                                boxShadow: agreed ? "0 0 32px rgba(147,51,234,0.45)" : "none",
+                                opacity: agreed && !loading ? 0.9 : 1,
+                                boxShadow: agreed && !loading ? "0 0 32px rgba(147,51,234,0.45)" : "none",
                             }}
-                            whileTap={{ scale: agreed ? 0.98 : 1 }}
+                            whileTap={{ scale: agreed && !loading ? 0.98 : 1 }}
                             onClick={handleSubmit}
+                            disabled={loading}
                             style={{
                                 width: "100%", height: "52px",
                                 background: agreed
@@ -301,7 +340,8 @@ export default function RegisterPage() {
                                 borderRadius: "10px", marginBottom: "1.5rem",
                                 display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
                                 transition: "all 0.25s",
-                                cursor: agreed ? "pointer" : "not-allowed",
+                                cursor: agreed && !loading ? "pointer" : "not-allowed",
+                                opacity: loading ? 0.7 : 1,
                             }}
                         >
                             {loading ? (
@@ -381,7 +421,7 @@ export default function RegisterPage() {
                         style={{ textAlign: "center", color: "#9ca3af", fontSize: "0.875rem" }}
                     >
                         Already have an account?{" "}
-                        <motion.a href="/login" whileHover={{ opacity: 0.8 }}
+                        <motion.a href="/auth/sign-in" whileHover={{ opacity: 0.8 }}
                             style={{ color: "#a78bfa", fontWeight: 700 }}>
                             Sign In
                         </motion.a>
