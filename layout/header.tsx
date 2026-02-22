@@ -5,7 +5,7 @@
 import { useSidebar } from "./sidebarProvider";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Bell, Search, Gamepad2 } from "lucide-react";
+import { Search, Gamepad2 } from "lucide-react";
 
 export default function Header() {
   const { isExpanded } = useSidebar();
@@ -19,16 +19,47 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    const fetchUsername = async () => {
+      const supabase = createClient();
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Baca dari tabel profiles, bukan user_metadata
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
+      setUsername(
+        profile?.username ||
+        user.email?.split("@")[0] ||
+        "Player"
+      );
+    };
+
+    fetchUsername();
+
+    // Realtime: subscribe ke perubahan tabel profiles
+    // supaya header langsung update saat user edit username di halaman profil
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setUsername(
-          data.user.user_metadata?.username ||
-          data.user.email?.split("@")[0] ||
-          "Player"
-        );
-      }
-    });
+    const channel = supabase
+      .channel("profile-username-change")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles" },
+        (payload) => {
+          if (payload.new?.username) {
+            setUsername(payload.new.username);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (
@@ -49,21 +80,14 @@ export default function Header() {
         <span className="font-extrabold text-[0.95rem] tracking-wide text-white">
           Arena<span className="text-violet-400">Hub</span>
         </span>
-
       </div>
 
-      {/* Kanan: Search + Bell + Avatar */}
+      {/* Kanan: Search + Avatar */}
       <div className="ml-auto flex items-center gap-2">
         {/* Search */}
         <button className="w-9 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center cursor-pointer hover:bg-violet-500/15 hover:border-violet-500/30 transition-all duration-200">
           <Search size={15} className="text-gray-400" />
         </button>
-
-        {/* Notification
-        <button className="relative w-9 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center cursor-pointer hover:bg-violet-500/15 hover:border-violet-500/30 transition-all duration-200">
-          <Bell size={15} className="text-gray-400" />
-          <span className="absolute top-[7px] right-[7px] w-[7px] h-[7px] rounded-full bg-violet-400 border-2 border-[#0e0916]" />
-        </button> */}
 
         {/* Avatar */}
         <div className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-xl bg-white/[0.05] border border-white/[0.08] cursor-pointer hover:bg-violet-500/10 hover:border-violet-500/20 transition-all duration-200">
