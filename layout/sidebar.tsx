@@ -48,7 +48,7 @@ const navItems: NavItem[] = [
     children: [
       { label: "Browse",         href: "/home/tournament",        icon: List },
       { label: "Create",         href: "/home/tournament/create", icon: PlusCircle },
-      { label: "My Tournaments", href: "/home/tournament/my",     icon: Star },
+      { label: "My Tournaments", href: "/home/tournament/mytournament",     icon: Star },
     ],
   },
   {
