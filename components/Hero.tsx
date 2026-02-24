@@ -1,121 +1,143 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Radio, ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
+    const router = useRouter();
     return (
         <section style={{
-            position: "relative", minHeight: "100vh",
-            display: "flex", flexDirection: "column", alignItems: "center",
-            justifyContent: "center", textAlign: "center",
-            padding: "0 1.5rem", overflow: "hidden",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "10rem 1.5rem 5rem",
+            overflow: "hidden",
         }}>
-            {/* BG gradient */}
-            <div style={{
-                position: "absolute", inset: 0, pointerEvents: "none",
-                background: "radial-gradient(ellipse 70% 60% at 50% 40%, rgba(109,40,217,0.18) 0%, transparent 70%)",
-            }} />
-            <div style={{
-                position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
-                width: "500px", height: "500px",
-                background: "radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)",
-                filter: "blur(40px)", pointerEvents: "none",
-            }} />
-            {/* Grid */}
-            <div style={{
-                position: "absolute", inset: 0, pointerEvents: "none",
-                backgroundImage: "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)",
-                backgroundSize: "80px 80px",
-                maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%)",
-            }} />
 
-            <div style={{ position: "relative", zIndex: 1, maxWidth: "640px" }}>
-                {/* Live badge */}
+            <div style={{ position: "relative", zIndex: 1, maxWidth: "680px" }}>
+
+                {/* ── ReactBits-style announcement pill ── */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                     style={{
-                        display: "inline-flex", alignItems: "center", gap: "0.4rem",
-                        background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.35)",
-                        borderRadius: "999px", padding: "0.3rem 0.9rem", marginBottom: "1.75rem",
-                        fontSize: "0.75rem", fontWeight: 500, color: "#9d5cf6",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0,
+                        marginBottom: "2rem",
+                        borderRadius: "999px",
+                        overflow: "hidden",
+                        border: "1px solid rgba(139,92,246,0.25)",
+                        boxShadow: "0 2px 16px rgba(109,40,217,0.2)",
+                        cursor: "pointer",
                     }}
+                    onClick={() => router.push("/auth/sign-up")}
                 >
-                    <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.4, repeat: Infinity }}>
-                        <Radio size={12} />
-                    </motion.span>
-                    MUSIM 4 TELAH TIBA
+                    {/* Left badge */}
+                    <span style={{
+                        background: "linear-gradient(135deg, #5b21b6, #7c3aed)",
+                        color: "#fff",
+                        fontSize: "0.72rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.06em",
+                        padding: "0.35rem 0.85rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                    }}>
+                        <Sparkles size={11} fill="#fff" />
+                        MUSIM 4
+                    </span>
+                    {/* Right label */}
+                    <span style={{
+                        background: "rgba(15,10,30,0.85)",
+                        backdropFilter: "blur(12px)",
+                        color: "rgba(200,185,255,0.85)",
+                        fontSize: "0.72rem",
+                        fontWeight: 500,
+                        letterSpacing: "0.04em",
+                        padding: "0.35rem 0.9rem 0.35rem 0.75rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                    }}>
+                        Telah Tiba
+                        <ArrowRight size={11} style={{ opacity: 0.6 }} />
+                    </span>
                 </motion.div>
 
-                {/* Headline */}
+                {/* ── Headline ── */}
                 <motion.h1
-                    initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                    style={{ fontSize: "clamp(2.4rem, 6vw, 3.75rem)", fontWeight: 800, lineHeight: 1.1, color: "#fff", letterSpacing: "-0.02em" }}
-                >
-                    Bergabunglah di
-                </motion.h1>
-                <motion.h1
-                    initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.55, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                     style={{
-                        fontSize: "clamp(2.4rem, 6vw, 3.75rem)", fontWeight: 800, lineHeight: 1.15,
-                        marginBottom: "1.25rem", letterSpacing: "-0.02em",
-                        background: "linear-gradient(135deg, #9d5cf6, #c084fc, #7c3aed)",
-                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                        fontSize: "clamp(2.2rem, 5.5vw, 3.5rem)",
+                        fontWeight: 700,
+                        lineHeight: 1.13,
+                        color: "#fff",
+                        letterSpacing: "-0.025em",
+                        marginBottom: "0.2rem",
+                        fontFamily: "'DM Sans', sans-serif",
                     }}
                 >
-                    Arena Gaming Terbaik
+                    Website Tournament Online Terbaik
                 </motion.h1>
 
-                {/* Subtitle */}
+                {/* ── Subtitle ── */}
                 <motion.p
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.65, maxWidth: "420px", margin: "0 auto 2.25rem" }}
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.38 }}
+                    style={{
+                        color: "rgba(180,170,210,0.65)",
+                        fontSize: "0.975rem",
+                        lineHeight: 1.7,
+                        maxWidth: "400px",
+                        margin: "0 auto 2.5rem",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontWeight: 400,
+                    }}
                 >
-                    Bergabunglah dengan komunitas paling kompetitif, bertanding di turnamen global, dan raih peringkat legendaris.
-                </motion.p>
+                    Daftar tim, ikuti turnamen, dan pantau bracket, semua terstruktur dan real-time.                </motion.p>
 
-                {/* CTA */}
+                {/* ── Single CTA Button (ReactBits style) ── */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.46 }}
                 >
                     <motion.button
-                        whileHover={{ scale: 1.04, boxShadow: "0 0 28px rgba(124,58,237,0.5)" }}
+                        onClick={() => router.push("/auth/sign-up")}
+                        whileHover={{ scale: 1.04, boxShadow: "0 0 36px rgba(124,58,237,0.55)" }}
                         whileTap={{ scale: 0.97 }}
                         style={{
-                            display: "flex", alignItems: "center", gap: "0.4rem",
-                            background: "var(--purple)", color: "#fff",
-                            fontWeight: 600, fontSize: "0.9rem",
-                            padding: "0.75rem 1.5rem", borderRadius: "8px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                            background: "linear-gradient(135deg, #4f46e5, #6366f1)",
+                            color: "#fff",
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontWeight: 700,
+                            fontSize: "0.95rem",
+                            padding: "0.85rem 2.2rem",
+                            borderRadius: "999px",
+                            border: "1px solid rgba(99,102,241,0.35)",
+                            cursor: "pointer",
+                            boxShadow: "0 4px 16px rgba(79,70,229,0.35)",
+                            letterSpacing: "0.01em",
                         }}
                     >
-                        Daftar Sekarang <ArrowRight size={16} />
-                    </motion.button>
-                    <motion.button
-                        whileHover={{ borderColor: "rgba(124,58,237,0.6)", color: "#fff" }}
-                        style={{
-                            background: "transparent", color: "var(--muted)",
-                            fontWeight: 600, fontSize: "0.9rem",
-                            padding: "0.75rem 1.5rem", borderRadius: "8px",
-                            border: "1px solid rgba(255,255,255,0.12)", transition: "all 0.2s",
-                        }}
-                    >
-                        Lihat Jadwal
+                        Daftar Sekarang
                     </motion.button>
                 </motion.div>
             </div>
 
-            {/* Bottom fade */}
-            <div style={{
-                position: "absolute", bottom: 0, left: 0, right: 0, height: "120px",
-                background: "linear-gradient(to top, var(--bg), transparent)",
-                pointerEvents: "none",
-            }} />
         </section>
     );
 }

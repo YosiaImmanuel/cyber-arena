@@ -29,7 +29,7 @@ export async function createTeam(formData: FormData) {
 
     if (error) return { error: error.message }
 
-    revalidatePath("/home/team")
+    revalidatePath("/team")
     return { success: true, teamId: data.id }
 }
 
@@ -110,7 +110,7 @@ export async function inviteUser(teamId: string, userId: string) {
         return { error: error.message }
     }
 
-    revalidatePath("/home/team")
+    revalidatePath("/team")
     return { success: true }
 }
 
@@ -146,7 +146,7 @@ export async function acceptInvitation(invitationId: string) {
 
     if (error) return { error: error.message }
 
-    revalidatePath("/home/team")
+    revalidatePath("/team")
     return { success: true }
 }
 
@@ -164,7 +164,7 @@ export async function declineInvitation(invitationId: string) {
 
     if (error) return { error: error.message }
 
-    revalidatePath("/home/team")
+    revalidatePath("/team")
     return { success: true }
 }
 
@@ -191,7 +191,7 @@ export async function leaveTeam() {
 
     if (error) return { error: error.message }
 
-    revalidatePath("/home/team")
+    revalidatePath("/team")
     return { success: true }
 }
 
@@ -209,7 +209,7 @@ export async function deleteTeam(teamId: string) {
 
     if (error) return { error: error.message }
 
-    revalidatePath("/home/team")
+    revalidatePath("/team")
     return { success: true }
 }
 
@@ -244,6 +244,6 @@ export async function kickMember(memberId: string) {
 
     if (error) return { error: error.message }
 
-    revalidatePath("/home/team")
+    revalidatePath("/team")
     return { success: true }
 }

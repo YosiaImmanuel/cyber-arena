@@ -92,7 +92,7 @@ export async function createTournament(formData: {
         return { error: error.message }
     }
 
-    revalidatePath("/home/tournament")
+    revalidatePath("/tournament")
     return { error: null }
 }
 
@@ -160,7 +160,7 @@ export async function registerTournament(formData: FormData) {
         return { error: error.message }
     }
 
-    revalidatePath(`/home/tournament/${tournamentId}`)
+    revalidatePath(`/tournament/${tournamentId}`)
     return { success: true }
 }
 

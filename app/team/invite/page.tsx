@@ -65,7 +65,7 @@ export default function InvitePage() {
             {/* Header */}
             <motion.div variants={item}>
                 <Link
-                    href="/home/team"
+                    href="/team"
                     className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-violet-400 transition-colors mb-4"
                 >
                     <ArrowLeft size={14} />

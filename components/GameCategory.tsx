@@ -11,7 +11,7 @@ const CATEGORIES = [
     label: "PC Games",
     desc: "Valorant, CS:GO, Dota 2, dan lainnya.",
     icon: Monitor,
-    image: "https://images.unsplash.com/photo-1542315204-b8d9d0a4b2d9?w=700&q=80",
+    image: "https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=700&q=80",
     accent: "#8b5cf6",
     count: "8 Tournament Aktif",
   },
@@ -106,43 +106,13 @@ export default function GameCategory() {
     <section
       style={{
         position: "relative",
-        minHeight: "100vh",
         width: "100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
-        background: "linear-gradient(135deg, #05030d 0%, #080514 50%, #05030d 100%)",
       }}
     >
-      {/* ── Background ── */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        <div style={{
-          position: "absolute", top: "15%", right: "-5%",
-          width: "500px", height: "500px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)",
-          filter: "blur(60px)",
-        }} />
-        <div style={{
-          position: "absolute", bottom: "10%", left: "-8%",
-          width: "450px", height: "450px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(109,40,217,0.1) 0%, transparent 70%)",
-          filter: "blur(55px)",
-        }} />
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(139,92,246,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.04) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse 100% 100% at 50% 50%, black 30%, transparent 100%)",
-        }} />
-        {[25, 50, 75].map((pos) => (
-          <div key={pos} style={{
-            position: "absolute", top: 0, bottom: 0, left: `${pos}%`, width: "1px",
-            background: "linear-gradient(to bottom, transparent, rgba(139,92,246,0.07), transparent)",
-          }} />
-        ))}
-      </div>
 
       {/* ── Content wrapper ── */}
       <div
@@ -194,32 +164,22 @@ export default function GameCategory() {
             transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             style={{ textAlign: "center", marginBottom: "2.5rem" }}
           >
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: "0.45rem",
-              background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.28)",
-              borderRadius: "999px", padding: "0.3rem 0.9rem", marginBottom: "1rem",
-            }}>
-              <Gamepad2 size={13} color="#a78bfa" />
-              <span style={{ color: "#a78bfa", fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em" }}>
-                PILIH PLATFORMMU
-              </span>
-            </div>
-            <h2 style={{
-              fontSize: "clamp(1.6rem, 3.5vw, 2.4rem)",
-              fontWeight: 900, color: "#fff",
-              lineHeight: 1.15, letterSpacing: "-0.02em", marginBottom: "0.5rem",
-            }}>
-              Kategori{" "}
-              <span style={{
-                background: "linear-gradient(135deg, #c084fc, #a78bfa, #8b5cf6)",
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              }}>
-                Game
-              </span>
-            </h2>
-            <p style={{ color: "#9ca3af", fontSize: "0.875rem", lineHeight: 1.6 }}>
-              Pilih platform favoritmu dan mulai bertanding sekarang.
-            </p>
+            <motion.h2
+                        initial={{ opacity: 0, y: 24 }}
+                        animate={inView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ delay: 0.22, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        style={{
+                            fontSize: "clamp(1.8rem, 4.5vw, 2.8rem)",
+                            fontWeight: 700, lineHeight: 1.13,
+                            letterSpacing: "-0.025em", marginBottom: "1rem",
+                            fontFamily: "'DM Sans', sans-serif",
+                            background: "linear-gradient(135deg, #c4b5fd 0%, #a78bfa 40%, #7c3aed 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                        }}
+                    >
+                        Kategori Game
+                    </motion.h2>
           </motion.div>
 
           {/* Responsive grid */}

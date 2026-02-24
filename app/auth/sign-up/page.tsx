@@ -466,7 +466,7 @@ export default function RegisterPage() {
                 background: "rgba(19,13,30,0.7)", backdropFilter: "blur(12px)",
             }}>
                 <span style={{ color: "#4b5563", fontSize: "0.75rem" }}>
-                    © 2024 ArenaHub Gaming Platforms. All rights reserved.
+                    © 2024 Cyber Arena Gaming Platforms. All rights reserved.
                 </span>
             </div>
         </>

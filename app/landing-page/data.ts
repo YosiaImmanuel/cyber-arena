@@ -71,16 +71,8 @@ export const TOURNAMENTS: Tournament[] = [
     },
 ];
 
-export const PLAYERS: Player[] = [
-    { rank: 1, initial: "X", color: "#7c3aed", name: "XenonForce", tournament: "CS:GO Masters", winnings: "$2,500" },
-    { rank: 2, initial: "V", color: "#10b981", name: "ViperSquad", tournament: "Apex Elite", winnings: "$1,200" },
-    { rank: 3, initial: "G", color: "#f59e0b", name: "GhostGamer", tournament: "Valorant Weekly", winnings: "$800" },
-];
-
 export const FOOTER_LINKS: Record<string, string[]> = {
-    TURNAMEN: ["Game FPS", "MOBA", "Battle Royale", "Olahraga"],
+    TURNAMEN: ["Game FPS", "MOBA", "Battle Royale"],
     PERUSAHAAN: ["Tentang Kami", "Program Partner", "Karir", "Kontak"],
     LEGAL: ["Syarat & Ketentuan", "Kebijakan Privasi", "Aturan"],
 };
-
-export const RANK_COLORS: Record<number, string> = { 1: "#f59e0b", 2: "#9ca3af", 3: "#cd7c2e" };

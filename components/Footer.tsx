@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gamepad2, Twitter, Instagram, Twitch } from "lucide-react";
+import { Sword } from "lucide-react";
 import { useReveal } from "@/hooks/hooks";
 import { FOOTER_LINKS } from "@/app/landing-page/data";
 
@@ -51,32 +51,22 @@ export default function Footer() {
                 <div className="footer-brand">
                     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.85rem" }}>
                         <div style={{
-                            width: "26px", height: "26px", background: "var(--purple)",
-                            borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
-                            <Gamepad2 size={14} color="#fff" />
-                        </div>
-                        <span style={{ fontWeight: 800, fontSize: "0.9rem", letterSpacing: "0.05em" }}>ARENA</span>
+                                            width: "30px", height: "30px",
+                                            background: "linear-gradient(135deg, #4f46e5, #6366f1)",
+                                            borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center",
+                                            boxShadow: "0 4px 12px rgba(99,102,241,0.35)",
+                                        }}>
+                                            <Sword size={15} color="#fff" strokeWidth={2.2} />
+                                        </div>
+                        <span style={{
+                            fontWeight: 800, fontSize: "1rem", letterSpacing: "0.08em",
+                            background: "linear-gradient(135deg, #fff, #c7d2fe)",
+                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                        }}>CYBER ARENA</span>
                     </div>
                     <p style={{ color: "var(--muted)", fontSize: "0.8rem", lineHeight: 1.7, maxWidth: "260px", marginBottom: "1.25rem" }}>
                         Platform terkemuka dunia untuk turnamen gaming amatir dan profesional. Bergabunglah dengan revolusi ini.
                     </p>
-                    <div style={{ display: "flex", gap: "0.6rem" }}>
-                        {([Twitter, Instagram, Twitch] as React.ElementType[]).map((Icon, i) => (
-                            <motion.div
-                                key={i}
-                                whileHover={{ color: "var(--purple-bright)", y: -2 }}
-                                style={{
-                                    width: "30px", height: "30px",
-                                    border: "1px solid var(--border)", borderRadius: "6px",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    cursor: "pointer", color: "var(--muted)", transition: "all 0.2s",
-                                }}
-                            >
-                                <Icon size={14} />
-                            </motion.div>
-                        ))}
-                    </div>
                 </div>
 
                 {/* Link columns */}

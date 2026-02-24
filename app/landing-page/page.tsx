@@ -3,24 +3,26 @@
 import GlobalStyles from "../../components/GlobalStyles";
 import Navbar from "../../components/Navbar";
 import Hero from "../../components/Hero";
-import FeaturedTournaments from "../../components/FeaturedTournaments";
-import HallOfFame from "../../components/HallOfFame";
-import Newsletter from "../../components/Sponsor";
 import Footer from "../../components/Footer";
 import GameCategory from "../../components/GameCategory";
-import JoinCTA from "../../components/JoinCTA";
+import HowToJoin from "../../components/HowToJoin";
+import Features from "@/components/Features";
+import JoinToAction from "@/components/JoinToAction";
 
 export default function Home() {
     return (
         <>
             <GlobalStyles />
+            {/* Vertical accent lines (global background) */}
+            <div className="landing-accent-lines">
+                <span /><span /><span />
+            </div>
             <Navbar />
             <Hero />
-            <FeaturedTournaments />
+            <HowToJoin />            
             <GameCategory />
-            <JoinCTA />
-            <HallOfFame />
-            <Newsletter />
+            <Features />
+            <JoinToAction />
             <Footer />
         </>
     );

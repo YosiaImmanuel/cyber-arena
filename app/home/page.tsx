@@ -5,8 +5,8 @@ import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { getMyTeam, getMyInvitations, acceptInvitation, declineInvitation } from "@/actions/team"
 import {
-    Trophy, Users, Gamepad2, ArrowRight, UserPlus,
-    CheckCircle2, XCircle, Zap, Shield, Swords
+    Trophy, Users, UserPlus, CheckCircle2, XCircle,
+    Shield, Swords, ChevronRight, Sword
 } from "lucide-react"
 import Link from "next/link"
 
@@ -22,48 +22,26 @@ export default function HomePage() {
         async function load() {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
-
             if (user) {
                 const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("username")
-                    .eq("id", user.id)
-                    .single()
-
-                setUsername(
-                    profile?.username ||
-                    user.email?.split("@")[0] ||
-                    "Player"
-                )
+                    .from("profiles").select("username").eq("id", user.id).single()
+                setUsername(profile?.username || user.email?.split("@")[0] || "Player")
             }
-
             const team = await getMyTeam()
-            if (team) {
-                setTeamName(team.name)
-                setMemberCount(team.team_members?.length || 0)
-            }
-
+            if (team) { setTeamName(team.name); setMemberCount(team.team_members?.length || 0) }
             const inv = await getMyInvitations()
             setInvitations(inv)
             setLoading(false)
         }
-
         load()
 
         const supabase = createClient()
         const channel = supabase
             .channel("homepage-profile-watch")
-            .on(
-                "postgres_changes",
+            .on("postgres_changes",
                 { event: "UPDATE", schema: "public", table: "profiles" },
-                (payload) => {
-                    if (payload.new?.username) {
-                        setUsername(payload.new.username)
-                    }
-                }
-            )
-            .subscribe()
-
+                (payload) => { if (payload.new?.username) setUsername(payload.new.username) }
+            ).subscribe()
         return () => { supabase.removeChannel(channel) }
     }, [])
 
@@ -73,10 +51,7 @@ export default function HomePage() {
         if (!result.error) {
             setInvitations(prev => prev.filter(i => i.id !== id))
             const team = await getMyTeam()
-            if (team) {
-                setTeamName(team.name)
-                setMemberCount(team.team_members?.length || 0)
-            }
+            if (team) { setTeamName(team.name); setMemberCount(team.team_members?.length || 0) }
         }
         setActionLoading(null)
     }
@@ -89,239 +64,308 @@ export default function HomePage() {
     }
 
     const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } }
-    const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
+    const item = {
+        hidden: { opacity: 0, y: 18 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }
+    }
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
                 <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-8 h-8 border-2 border-violet-500/30 border-t-violet-500 rounded-full"
+                    style={{
+                        width: 24, height: 24, borderRadius: "50%",
+                        border: "2px solid rgba(99,102,241,0.25)",
+                        borderTopColor: "#6366f1",
+                    }}
                 />
             </div>
         )
     }
 
     return (
-        <motion.div variants={container} initial="hidden" animate="show" className="max-w-5xl mx-auto space-y-6">
-            {/* Welcome Banner */}
-            <motion.div
-                variants={item}
-                className="relative overflow-hidden rounded-2xl p-8"
-                style={{
-                    background: "linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(109,40,217,0.15) 50%, rgba(28,16,42,0.9) 100%)",
-                    border: "1px solid rgba(139,92,246,0.2)",
-                }}
-            >
-                <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Zap size={16} className="text-violet-400" />
-                        <span className="text-xs font-semibold text-violet-400 uppercase tracking-wider">Dashboard</span>
+        <motion.div
+            variants={container} initial="hidden" animate="show"
+            style={{ maxWidth: "800px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.75rem" }}
+        >
+            {/* ── Welcome ── */}
+            <motion.div variants={item}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem" }}>
+                    <div style={{
+                        width: "28px", height: "28px",
+                        background: "linear-gradient(135deg, #4f46e5, #6366f1)",
+                        borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center",
+                        boxShadow: "0 4px 12px rgba(99,102,241,0.3)",
+                        flexShrink: 0,
+                    }}>
+                        <Sword size={13} color="#fff" strokeWidth={2.2} />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-white mb-2">
-                        Selamat datang, <span className="text-violet-400">{username}</span>! 👋
-                    </h1>
-                    <p className="text-gray-400 text-sm max-w-lg">
-                        Siap untuk kompetisi berikutnya? Kelola tim kamu, jelajahi tournament, dan raih kemenangan!
-                    </p>
+                    <span style={{
+                        fontSize: "0.72rem", fontWeight: 700,
+                        letterSpacing: "0.1em", color: "#818cf8",
+                        textTransform: "uppercase",
+                    }}>Dashboard</span>
                 </div>
+
+                <h1 style={{
+                    fontSize: "clamp(1.5rem, 3vw, 2rem)",
+                    fontWeight: 700, color: "#fff",
+                    letterSpacing: "-0.02em", lineHeight: 1.2,
+                    marginBottom: "0.35rem",
+                }}>
+                    Selamat datang,{" "}
+                    <span style={{
+                        background: "linear-gradient(135deg, #c4b5fd, #818cf8)",
+                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                    }}>
+                        {username}
+                    </span>
+                </h1>
+                <p style={{ color: "rgba(180,170,210,0.5)", fontSize: "0.875rem", lineHeight: 1.6 }}>
+                    Kelola tim, jelajahi turnamen, dan pantau perkembangan kamu.
+                </p>
             </motion.div>
 
-            {/* Quick Stats */}
-            <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Tim Status */}
-                <div
-                    className="rounded-xl p-5 transition-all duration-200 hover:border-violet-500/30"
-                    style={{
-                        background: "rgba(28,16,42,0.6)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        backdropFilter: "blur(12px)",
-                    }}
-                >
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-violet-500/15 flex items-center justify-center">
-                            <Shield size={20} className="text-violet-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500 font-medium">Tim Kamu</p>
-                            <p className="text-sm font-bold text-white">{teamName || "Belum ada tim"}</p>
-                        </div>
-                    </div>
-                    {teamName && (
-                        <p className="text-xs text-gray-500">{memberCount} anggota</p>
-                    )}
-                </div>
+            {/* ── Divider ── */}
+            <div style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
 
-                {/* Undangan */}
-                <div
-                    className="rounded-xl p-5 transition-all duration-200 hover:border-violet-500/30"
-                    style={{
-                        background: "rgba(28,16,42,0.6)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        backdropFilter: "blur(12px)",
-                    }}
-                >
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                            <UserPlus size={20} className="text-amber-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500 font-medium">Undangan Masuk</p>
-                            <p className="text-sm font-bold text-white">{invitations.length} undangan</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Tournament */}
-                <div
-                    className="rounded-xl p-5 transition-all duration-200 hover:border-violet-500/30"
-                    style={{
-                        background: "rgba(28,16,42,0.6)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        backdropFilter: "blur(12px)",
-                    }}
-                >
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                            <Swords size={20} className="text-emerald-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500 font-medium">Tournament</p>
-                            <p className="text-sm font-bold text-white">Jelajahi Sekarang</p>
-                        </div>
-                    </div>
-                </div>
-            </motion.div>
-
-            {/* Quick Actions */}
-            <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {!teamName ? (
-                    <Link href="/home/team/create">
+            {/* ── Stats Row ── */}
+            <motion.div variants={item}>
+                <p style={{
+                    fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em",
+                    color: "rgba(255,255,255,0.25)", textTransform: "uppercase", marginBottom: "1rem",
+                }}>Ringkasan</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.75rem" }}>
+                    {[
+                        {
+                            icon: <Shield size={15} style={{ color: "#818cf8" }} />,
+                            label: "Tim Kamu",
+                            value: teamName || "—",
+                            sub: teamName ? `${memberCount} anggota` : "Belum ada tim",
+                        },
+                        {
+                            icon: <UserPlus size={15} style={{ color: "#818cf8" }} />,
+                            label: "Undangan",
+                            value: invitations.length > 0 ? `${invitations.length}` : "—",
+                            sub: invitations.length > 0 ? "Undangan masuk" : "Tidak ada",
+                        },
+                        {
+                            icon: <Swords size={15} style={{ color: "#818cf8" }} />,
+                            label: "Turnamen",
+                            value: "Tersedia",
+                            sub: "Lihat semua event",
+                        },
+                    ].map((stat, i) => (
                         <div
-                            className="rounded-xl p-6 cursor-pointer group transition-all duration-300 hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/10"
+                            key={i}
                             style={{
-                                background: "rgba(28,16,42,0.6)",
-                                border: "1px solid rgba(255,255,255,0.08)",
+                                border: "1px solid rgba(255,255,255,0.07)",
+                                borderRadius: "14px", padding: "1.1rem 1.25rem",
+                                position: "relative", overflow: "hidden",
                             }}
                         >
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center shadow-lg shadow-violet-900/50">
-                                        <Users size={22} className="text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-white font-bold text-base">Buat Tim</h3>
-                                        <p className="text-gray-500 text-xs mt-0.5">Bentuk tim dan mulai berkompetisi</p>
-                                    </div>
+                            {/* Top accent */}
+                            <div style={{
+                                position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+                                background: "linear-gradient(90deg, rgba(99,102,241,0.4), transparent)",
+                            }} />
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                                <div style={{
+                                    width: "28px", height: "28px", borderRadius: "8px",
+                                    background: "rgba(79,70,229,0.1)", border: "1px solid rgba(99,102,241,0.15)",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                }}>
+                                    {stat.icon}
                                 </div>
-                                <ArrowRight size={18} className="text-gray-600 group-hover:text-violet-400 transition-colors" />
+                                <span style={{ fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.08em", color: "rgba(255,255,255,0.25)", textTransform: "uppercase" }}>
+                                    {stat.label}
+                                </span>
                             </div>
+                            <p style={{ color: "#fff", fontWeight: 700, fontSize: "1.05rem", letterSpacing: "-0.01em" }}>{stat.value}</p>
+                            <p style={{ color: "rgba(180,170,210,0.4)", fontSize: "0.78rem", marginTop: "0.2rem" }}>{stat.sub}</p>
                         </div>
-                    </Link>
-                ) : (
-                    <Link href="/home/team">
-                        <div
-                            className="rounded-xl p-6 cursor-pointer group transition-all duration-300 hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/10"
-                            style={{
-                                background: "rgba(28,16,42,0.6)",
-                                border: "1px solid rgba(255,255,255,0.08)",
-                            }}
-                        >
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center shadow-lg shadow-violet-900/50">
-                                        <Users size={22} className="text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-white font-bold text-base">Tim Saya</h3>
-                                        <p className="text-gray-500 text-xs mt-0.5">Kelola tim dan anggota</p>
-                                    </div>
-                                </div>
-                                <ArrowRight size={18} className="text-gray-600 group-hover:text-violet-400 transition-colors" />
-                            </div>
-                        </div>
-                    </Link>
-                )}
-
-                <Link href="/home/tournament">
-                    <div
-                        className="rounded-xl p-6 cursor-pointer group transition-all duration-300 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10"
-                        style={{
-                            background: "rgba(28,16,42,0.6)",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                        }}
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-lg shadow-emerald-900/50">
-                                    <Trophy size={22} className="text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-white font-bold text-base">Browse Tournament</h3>
-                                    <p className="text-gray-500 text-xs mt-0.5">Temukan dan ikuti tournament terbaik</p>
-                                </div>
-                            </div>
-                            <ArrowRight size={18} className="text-gray-600 group-hover:text-emerald-400 transition-colors" />
-                        </div>
-                    </div>
-                </Link>
+                    ))}
+                </div>
             </motion.div>
 
-            {/* Undangan Masuk */}
+            {/* ── Quick Actions ── */}
+            <motion.div variants={item}>
+                <p style={{
+                    fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em",
+                    color: "rgba(255,255,255,0.25)", textTransform: "uppercase", marginBottom: "1rem",
+                }}>Aksi Cepat</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0.75rem" }}>
+
+                    <Link href={teamName ? "/team" : "/team/create"} style={{ textDecoration: "none" }}>
+                        <motion.div
+                            whileHover={{ borderColor: "rgba(99,102,241,0.3)", y: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            style={{
+                                border: "1px solid rgba(255,255,255,0.07)", borderRadius: "14px",
+                                padding: "1.1rem 1.25rem", cursor: "pointer",
+                                display: "flex", alignItems: "center", gap: "1rem",
+                            }}
+                        >
+                            <div style={{
+                                width: "38px", height: "38px", borderRadius: "10px", flexShrink: 0,
+                                background: "linear-gradient(135deg, #4f46e5, #6366f1)",
+                                boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                            }}>
+                                <Users size={17} color="#fff" />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <p style={{ color: "#fff", fontWeight: 600, fontSize: "0.875rem" }}>
+                                    {teamName ? "Tim Saya" : "Buat Tim"}
+                                </p>
+                                <p style={{ color: "rgba(180,170,210,0.4)", fontSize: "0.78rem", marginTop: "0.15rem" }}>
+                                    {teamName ? "Kelola tim kamu" : "Buat dan undang anggota"}
+                                </p>
+                            </div>
+                            <ChevronRight size={15} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+                        </motion.div>
+                    </Link>
+
+                    <Link href="/tournament" style={{ textDecoration: "none" }}>
+                        <motion.div
+                            whileHover={{ borderColor: "rgba(99,102,241,0.3)", y: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            style={{
+                                border: "1px solid rgba(255,255,255,0.07)", borderRadius: "14px",
+                                padding: "1.1rem 1.25rem", cursor: "pointer",
+                                display: "flex", alignItems: "center", gap: "1rem",
+                            }}
+                        >
+                            <div style={{
+                                width: "38px", height: "38px", borderRadius: "10px", flexShrink: 0,
+                                background: "linear-gradient(135deg, #4f46e5, #6366f1)",
+                                boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                            }}>
+                                <Trophy size={17} color="#fff" />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <p style={{ color: "#fff", fontWeight: 600, fontSize: "0.875rem" }}>Browse Turnamen</p>
+                                <p style={{ color: "rgba(180,170,210,0.4)", fontSize: "0.78rem", marginTop: "0.15rem" }}>
+                                    Temukan dan daftar event
+                                </p>
+                            </div>
+                            <ChevronRight size={15} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+                        </motion.div>
+                    </Link>
+
+                </div>
+            </motion.div>
+
+            {/* ── Undangan ── */}
             {invitations.length > 0 && (
                 <motion.div variants={item}>
-                    <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <UserPlus size={18} className="text-violet-400" />
-                        Undangan Tim Masuk
-                    </h2>
-                    <div className="space-y-3">
-                        {invitations.map((inv: any) => (
-                            <div
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1rem" }}>
+                        <p style={{
+                            fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em",
+                            color: "rgba(255,255,255,0.25)", textTransform: "uppercase",
+                        }}>Undangan Tim</p>
+                        <span style={{
+                            fontSize: "0.68rem", fontWeight: 700,
+                            padding: "0.15rem 0.55rem", borderRadius: "999px",
+                            background: "rgba(99,102,241,0.12)", color: "#818cf8",
+                            border: "1px solid rgba(99,102,241,0.2)",
+                            letterSpacing: "0.05em",
+                        }}>
+                            {invitations.length} BARU
+                        </span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                        {invitations.map((inv: any, idx: number) => (
+                            <motion.div
                                 key={inv.id}
-                                className="rounded-xl p-4 flex items-center justify-between"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.06 }}
                                 style={{
-                                    background: "rgba(28,16,42,0.6)",
-                                    border: "1px solid rgba(255,255,255,0.08)",
+                                    border: "1px solid rgba(255,255,255,0.07)",
+                                    borderRadius: "14px", padding: "1rem 1.25rem",
+                                    display: "flex", alignItems: "center",
+                                    justifyContent: "space-between", gap: "1rem",
+                                    position: "relative", overflow: "hidden",
                                 }}
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-violet-500/15 flex items-center justify-center">
-                                        <Gamepad2 size={18} className="text-violet-400" />
+                                {/* Left accent bar */}
+                                <div style={{
+                                    position: "absolute", left: 0, top: 0, bottom: 0,
+                                    width: "3px",
+                                    background: "linear-gradient(to bottom, #6366f1, rgba(99,102,241,0.2))",
+                                    borderRadius: "0 2px 2px 0",
+                                }} />
+
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", minWidth: 0, paddingLeft: "0.5rem" }}>
+                                    <div style={{
+                                        width: "36px", height: "36px", borderRadius: "10px", flexShrink: 0,
+                                        background: "rgba(79,70,229,0.1)", border: "1px solid rgba(99,102,241,0.15)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                    }}>
+                                        <Sword size={15} style={{ color: "#818cf8" }} strokeWidth={2} />
                                     </div>
-                                    <div>
-                                        <p className="text-white font-semibold text-sm">
+                                    <div style={{ minWidth: 0 }}>
+                                        <p style={{ color: "#fff", fontWeight: 600, fontSize: "0.875rem" }}>
                                             {inv.teams?.name || "Unknown Team"}
                                         </p>
-                                        <p className="text-gray-500 text-xs">
-                                            Diundang oleh {inv.inviter?.username || "unknown"}
+                                        <p style={{ color: "rgba(180,170,210,0.4)", fontSize: "0.75rem", marginTop: "0.1rem" }}>
+                                            Dari{" "}
+                                            <span style={{ color: "rgba(180,170,210,0.65)" }}>
+                                                {inv.inviter?.username || "unknown"}
+                                            </span>
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <button
+
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
+                                    <motion.button
                                         onClick={() => handleAccept(inv.id)}
                                         disabled={actionLoading === inv.id}
-                                        className="px-3 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/25 transition-colors cursor-pointer disabled:opacity-50"
+                                        whileTap={{ scale: 0.95 }}
+                                        style={{
+                                            display: "flex", alignItems: "center", gap: "0.35rem",
+                                            padding: "0.45rem 0.9rem", borderRadius: "8px",
+                                            fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+                                            background: "rgba(79,70,229,0.12)", color: "#a5b4fc",
+                                            border: "1px solid rgba(99,102,241,0.22)",
+                                            opacity: actionLoading === inv.id ? 0.5 : 1,
+                                            transition: "all 0.15s",
+                                        }}
                                     >
-                                        <CheckCircle2 size={14} className="inline mr-1" />
+                                        <CheckCircle2 size={12} />
                                         Terima
-                                    </button>
-                                    <button
+                                    </motion.button>
+                                    <motion.button
                                         onClick={() => handleDecline(inv.id)}
                                         disabled={actionLoading === inv.id}
-                                        className="px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400 text-xs font-semibold hover:bg-red-500/25 transition-colors cursor-pointer disabled:opacity-50"
+                                        whileTap={{ scale: 0.95 }}
+                                        style={{
+                                            display: "flex", alignItems: "center", gap: "0.35rem",
+                                            padding: "0.45rem 0.9rem", borderRadius: "8px",
+                                            fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+                                            background: "transparent", color: "rgba(255,255,255,0.25)",
+                                            border: "1px solid rgba(255,255,255,0.08)",
+                                            opacity: actionLoading === inv.id ? 0.5 : 1,
+                                            transition: "all 0.15s",
+                                        }}
                                     >
-                                        <XCircle size={14} className="inline mr-1" />
+                                        <XCircle size={12} />
                                         Tolak
-                                    </button>
+                                    </motion.button>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 </motion.div>
             )}
+
         </motion.div>
     )
 }

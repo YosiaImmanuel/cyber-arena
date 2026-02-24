@@ -15,7 +15,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
       <Header />
       <main
         className={`
-          min-h-screen
+          min-h-screen 
           px-6 py-6 md:p-8
           transition-all duration-300 ease-in-out
           pt-[calc(3.5rem+1rem)] md:pt-8
