@@ -2,11 +2,12 @@
 
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { createTournament } from "@/actions/tournament"
 import {
     Trophy, Calendar, DollarSign, FileText,
-    Loader2, ChevronDown, CalendarDays, Image, Users
+    Loader2, ChevronDown, CalendarDays, Image, Users,
+    CreditCard
 } from "lucide-react"
 import Link from "next/link"
 
@@ -16,6 +17,20 @@ const GAME_CATEGORIES = [
     "CODM", "HOK", "CS GO", "Valorant", "DOTA 2", "League of Legends"
 ]
 
+const BIAYA_PROMOSI = 50000
+const BIAYA_PENDAFTARAN = 150000
+const TOTAL_BAYAR = BIAYA_PROMOSI + BIAYA_PENDAFTARAN
+
+const PAYMENT_METHODS = [
+    { id: "bca",   label: "BCA",   number: "1234 5678 9012 3456", holder: "a.n. Cyber Arena Official" },
+    { id: "dana",  label: "DANA",  number: "0812-3456-7890",      holder: "a.n. Cyber Arena Official" },
+    { id: "gopay", label: "GoPay", number: "0812-3456-7890",      holder: "a.n. Cyber Arena Official" },
+]
+
+function formatRupiah(n: number) {
+    return "Rp " + n.toLocaleString("id-ID")
+}
+
 function DatePicker({ name, value, onChange, label }: {
     name: string; value: string
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -23,9 +38,9 @@ function DatePicker({ name, value, onChange, label }: {
 }) {
     const inputRef = useRef<HTMLInputElement>(null)
     const parsed = value ? new Date(value + "T00:00:00") : null
-    const day = parsed ? String(parsed.getDate()).padStart(2, "0") : null
+    const day   = parsed ? String(parsed.getDate()).padStart(2, "0") : null
     const month = parsed ? MONTHS[parsed.getMonth()] : null
-    const year = parsed ? parsed.getFullYear() : null
+    const year  = parsed ? parsed.getFullYear() : null
 
     return (
         <div style={{ flex: 1 }}>
@@ -89,8 +104,11 @@ function DatePicker({ name, value, onChange, label }: {
 
 export default function CreateTournamentPage() {
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading]               = useState(false)
+    const [error, setError]                   = useState<string | null>(null)
+    const [namaPendaftar, setNamaPendaftar]   = useState("")
+    const [selectedMethod, setSelectedMethod] = useState<string | null>(null)
+    const [sudahBayar, setSudahBayar]         = useState(false)
     const [form, setForm] = useState({
         name: "", game_category: "", description: "", prize_pool: "",
         max_slots: "8", google_form_url: "", banner_url: "",
@@ -101,8 +119,18 @@ export default function CreateTournamentPage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
+    // Tombol submit aktif hanya jika: field wajib terisi + nama pendaftar + metode dipilih + sudah bayar
+    const formLengkap =
+        form.name.trim() !== "" &&
+        form.game_category !== "" &&
+        form.google_form_url.trim() !== "" &&
+        namaPendaftar.trim() !== "" &&
+        selectedMethod !== null &&
+        sudahBayar
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!formLengkap) return
         setLoading(true)
         setError(null)
         const result = await createTournament({
@@ -328,6 +356,147 @@ export default function CreateTournamentPage() {
                         </div>
                     </div>
 
+                    {/* ── Pembayaran ── */}
+                    <div style={sectionStyle}>
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, rgba(99,102,241,0.4), transparent)" }} />
+                        <SectionLabel icon={<CreditCard size={12} />} label="Pembayaran" />
+
+                        {/* Rincian biaya */}
+                        <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)" }}>
+                            <div style={{ padding: "0.875rem 1rem", display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: "0.82rem", color: "rgba(180,170,210,0.5)" }}>Biaya Promosi</span>
+                                    <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{formatRupiah(BIAYA_PROMOSI)}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: "0.82rem", color: "rgba(180,170,210,0.5)" }}>Biaya Pendaftaran</span>
+                                    <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{formatRupiah(BIAYA_PENDAFTARAN)}</span>
+                                </div>
+                            </div>
+                            <div style={{ height: "1px", background: "rgba(255,255,255,0.07)" }} />
+                            <div style={{ padding: "0.75rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(79,70,229,0.06)" }}>
+                                <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(180,170,210,0.4)" }}>
+                                    Total Pembayaran
+                                </span>
+                                <span style={{ fontSize: "1rem", fontWeight: 800, color: "#a5b4fc" }}>{formatRupiah(TOTAL_BAYAR)}</span>
+                            </div>
+                        </div>
+
+                        {/* Nama pendaftar */}
+                        <div>
+                            <label style={labelStyle}>Nama Pendaftar <Required /></label>
+                            <input
+                                className="ct-input"
+                                placeholder="Nama lengkap kamu"
+                                value={namaPendaftar}
+                                onChange={e => setNamaPendaftar(e.target.value)}
+                                style={inputStyle}
+                            />
+                            <p style={{ fontSize: "0.72rem", color: "rgba(180,170,210,0.3)", marginTop: "0.35rem" }}>
+                                Sesuaikan dengan nama yang terdaftar di akun.
+                            </p>
+                        </div>
+
+                        {/* Metode pembayaran */}
+                        <div>
+                            <p style={{ ...labelStyle, marginBottom: "0.6rem" }}>Metode Pembayaran <Required /></p>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                {PAYMENT_METHODS.map(method => {
+                                    const active = selectedMethod === method.id
+                                    return (
+                                        <motion.div
+                                            key={method.id}
+                                            onClick={() => setSelectedMethod(method.id)}
+                                            whileTap={{ scale: 0.99 }}
+                                            style={{
+                                                display: "flex", alignItems: "center", justifyContent: "space-between",
+                                                padding: "0.75rem 1rem", borderRadius: "10px", cursor: "pointer",
+                                                border: active ? "1px solid rgba(99,102,241,0.45)" : "1px solid rgba(255,255,255,0.07)",
+                                                background: active ? "rgba(79,70,229,0.07)" : "transparent",
+                                                transition: "all 0.2s",
+                                            }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                                {/* Radio dot */}
+                                                <div style={{
+                                                    width: "16px", height: "16px", borderRadius: "50%", flexShrink: 0,
+                                                    border: active ? "1px solid #6366f1" : "1px solid rgba(255,255,255,0.15)",
+                                                    background: active ? "linear-gradient(135deg, #4f46e5, #6366f1)" : "transparent",
+                                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                                    transition: "all 0.2s",
+                                                    boxShadow: active ? "0 2px 8px rgba(99,102,241,0.3)" : "none",
+                                                }}>
+                                                    {active && <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#fff" }} />}
+                                                </div>
+                                                <div>
+                                                    <p style={{ fontSize: "0.875rem", fontWeight: 600, color: active ? "#fff" : "rgba(255,255,255,0.5)" }}>
+                                                        {method.label}
+                                                    </p>
+                                                    <p style={{ fontSize: "0.75rem", color: "rgba(180,170,210,0.35)", marginTop: "1px" }}>
+                                                        {method.holder}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <AnimatePresence>
+                                                {active && (
+                                                    <motion.span
+                                                        initial={{ opacity: 0, x: 6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 6 }}
+                                                        style={{ fontSize: "0.875rem", fontWeight: 700, color: "#818cf8", letterSpacing: "0.04em" }}
+                                                    >
+                                                        {method.number}
+                                                    </motion.span>
+                                                )}
+                                            </AnimatePresence>
+                                        </motion.div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Divider tipis */}
+                        <div style={{ height: "1px", background: "rgba(255,255,255,0.05)" }} />
+
+                        {/* Konfirmasi sudah bayar */}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+                            <div>
+                                <p style={{ fontSize: "0.82rem", fontWeight: 600, color: sudahBayar ? "#34d399" : "rgba(255,255,255,0.4)" }}>
+                                    Status Pembayaran
+                                </p>
+                                <p style={{ fontSize: "0.72rem", color: "rgba(180,170,210,0.3)", marginTop: "2px" }}>
+                                    {sudahBayar ? "Pembayaran telah dikonfirmasi" : "Belum ada konfirmasi pembayaran"}
+                                </p>
+                            </div>
+                            <motion.button
+                                type="button"
+                                onClick={() => setSudahBayar(!sudahBayar)}
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                style={{
+                                    display: "flex", alignItems: "center", gap: "0.45rem",
+                                    padding: "0.55rem 1.1rem", borderRadius: "999px",
+                                    fontSize: "0.8rem", fontWeight: 700, flexShrink: 0,
+                                    cursor: "pointer", fontFamily: "inherit", transition: "all 0.25s",
+                                    background: sudahBayar ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.04)",
+                                    border: sudahBayar ? "1px solid rgba(52,211,153,0.3)" : "1px solid rgba(255,255,255,0.1)",
+                                    color: sudahBayar ? "#34d399" : "rgba(255,255,255,0.4)",
+                                    boxShadow: sudahBayar ? "0 0 14px rgba(52,211,153,0.15)" : "none",
+                                }}
+                            >
+                                {sudahBayar ? (
+                                    <>
+                                        <motion.svg
+                                            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.15 }}
+                                            width="11" height="11" viewBox="0 0 12 12"
+                                        >
+                                            <path d="M2 6l3 3 5-5" stroke="#34d399" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                                        </motion.svg>
+                                        Sudah Bayar
+                                    </>
+                                ) : "Belum Bayar"}
+                            </motion.button>
+                        </div>
+                    </div>
+
                     {/* ── Error ── */}
                     {error && (
                         <div style={{
@@ -341,19 +510,24 @@ export default function CreateTournamentPage() {
                     )}
 
                     {/* ── Submit ── */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingBottom: "2rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingBottom: "2rem", flexWrap: "wrap" }}>
                         <motion.button
-                            type="submit" disabled={loading}
-                            whileHover={{ scale: loading ? 1 : 1.03, boxShadow: "0 0 24px rgba(99,102,241,0.4)" }}
-                            whileTap={{ scale: 0.97 }}
+                            type="submit"
+                            disabled={!formLengkap || loading}
+                            whileHover={{ scale: formLengkap && !loading ? 1.03 : 1, boxShadow: formLengkap && !loading ? "0 0 24px rgba(99,102,241,0.4)" : "none" }}
+                            whileTap={{ scale: formLengkap ? 0.97 : 1 }}
                             style={{
                                 display: "flex", alignItems: "center", gap: "0.5rem",
-                                background: "linear-gradient(135deg, #4f46e5, #6366f1)",
-                                color: "#fff", fontWeight: 600, fontSize: "0.875rem",
+                                background: formLengkap
+                                    ? "linear-gradient(135deg, #4f46e5, #6366f1)"
+                                    : "rgba(99,102,241,0.12)",
+                                color: formLengkap ? "#fff" : "rgba(255,255,255,0.2)",
+                                fontWeight: 600, fontSize: "0.875rem",
                                 padding: "0.7rem 1.6rem", borderRadius: "999px",
-                                border: "1px solid rgba(99,102,241,0.35)", cursor: loading ? "not-allowed" : "pointer",
-                                boxShadow: "0 4px 16px rgba(79,70,229,0.3)",
-                                opacity: loading ? 0.7 : 1, transition: "opacity 0.2s",
+                                border: formLengkap ? "1px solid rgba(99,102,241,0.35)" : "1px solid rgba(255,255,255,0.06)",
+                                cursor: formLengkap && !loading ? "pointer" : "not-allowed",
+                                boxShadow: formLengkap ? "0 4px 16px rgba(79,70,229,0.3)" : "none",
+                                opacity: loading ? 0.7 : 1, transition: "all 0.25s",
                                 fontFamily: "inherit",
                             }}
                         >
@@ -379,6 +553,19 @@ export default function CreateTournamentPage() {
                                 Batal
                             </motion.button>
                         </Link>
+
+                        {/* Hint jika tombol masih disable */}
+                        {!formLengkap && (
+                            <span style={{ fontSize: "0.72rem", color: "rgba(180,170,210,0.3)", width: "100%" }}>
+                                {!sudahBayar
+                                    ? "Konfirmasi pembayaran terlebih dahulu"
+                                    : !selectedMethod
+                                    ? "Pilih metode pembayaran"
+                                    : namaPendaftar.trim() === ""
+                                    ? "Isi nama pendaftar"
+                                    : "Lengkapi semua field yang wajib diisi"}
+                            </span>
+                        )}
                     </div>
                 </motion.form>
             </motion.div>
